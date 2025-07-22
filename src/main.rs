@@ -39,7 +39,10 @@ fn main() {
         match rx.recv() {
             Ok(_) => {
                 println!("Changes detected, regenerating assets file...");
-                generate_assets_file(&assets_images, &assets_svgs, &generated_file);
+                // if is .DS_Store, skip
+                if entry.file_name().to_str().unwrap() != ".DS_Store" {
+                    generate_assets_file(&assets_images, &assets_svgs, &generated_file);
+                }
             }
             Err(e) => println!("watch error: {:?}", e),
         }
