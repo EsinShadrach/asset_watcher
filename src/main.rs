@@ -39,10 +39,7 @@ fn main() {
         match rx.recv() {
             Ok(_) => {
                 println!("Changes detected, regenerating assets file...");
-                // if is .DS_Store, skip
-                if entry.file_name().to_str().unwrap() != ".DS_Store" {
-                    generate_assets_file(&assets_images, &assets_svgs, &generated_file);
-                }
+                generate_assets_file(&assets_images, &assets_svgs, &generated_file);
             }
             Err(e) => println!("watch error: {:?}", e),
         }
@@ -59,12 +56,14 @@ fn generate_assets_file(images_dir: &Path, svgs_dir: &Path, output_file: &Path) 
     for entry in WalkDir::new(images_dir).into_iter().filter_map(|e| e.ok()) {
         if entry.file_type().is_file() {
             let file_name = entry.file_name().to_str().unwrap();
+            if file_name == ".DS_Store" {
+                continue;
+            }
             let asset_name =
                 ToLowerCamelCase::to_lower_camel_case(file_name.split('.').next().unwrap());
             let asset_path = Path::new("assets/images").join(file_name);
             file_content.push_str(&format!(
-                "  static const String {} = \"{}\";
-",
+                "  static const String {} = \"{}\";\n",
                 asset_name,
                 asset_path.to_str().unwrap()
             ));
@@ -82,12 +81,14 @@ fn generate_assets_file(images_dir: &Path, svgs_dir: &Path, output_file: &Path) 
     for entry in WalkDir::new(svgs_dir).into_iter().filter_map(|e| e.ok()) {
         if entry.file_type().is_file() {
             let file_name = entry.file_name().to_str().unwrap();
+            if file_name == ".DS_Store" {
+                continue;
+            }
             let asset_name =
                 ToLowerCamelCase::to_lower_camel_case(file_name.split('.').next().unwrap());
             let asset_path = Path::new("assets/svgs").join(file_name);
             file_content.push_str(&format!(
-                "  static const String {} = \"{}\";
-",
+                "  static const String {} = \"{}\";\n",
                 asset_name,
                 asset_path.to_str().unwrap()
             ));
